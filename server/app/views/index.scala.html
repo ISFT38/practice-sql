@@ -1,12 +1,10 @@
-@(message: String)
+@()(implicit request: RequestHeader)
 
-@main("Play with Scala.js") {
+@main("Practice-SQL") {
+  <div id="root" class="container-fluid"></div>
 
-  <h2>Play and Scala.js share a same message</h2>
-  <ul>
-    <li>Play shouts out: <em>@message</em></li>
-    <li>Scala.js shouts out: <em id="scalajsShoutOut"></em></li>
-  </ul>
+  <input type="hidden" id="csrfToken" value="@helper.CSRF.getToken.value">
+  <input type="hidden" id="loginRoute" 
+         value="@controllers.routes.UserController.login">
 
-  <div id="root"></div>
 }

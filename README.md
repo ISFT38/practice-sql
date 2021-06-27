@@ -1,6 +1,6 @@
-# play-scalajs-slinky
+# practice-sql
 
-This is my starter project for things that involve Play using Scala.js and
-the Slinky React binding. I'm using this as the starter for student code in
-Web Apps Spring 2021.
+This is a single page application that I use for remote teaching a Database course.
+
+Uses https://github.com/MarkCLewis/play-scalajs-slinky as template
 
