@@ -1,24 +1,43 @@
 package ar.edu.isft38.bada.client
 
-import shared.SharedMessages
-import org.scalajs.dom
-
 import slinky.core._
 import slinky.web.ReactDOM
 import slinky.web.html._
-import domain.UserDTO
 import slinky.core.facade.React
+
+import scala.util.Success
+import scala.util.Failure
+import org.scalajs.dom
+import org.scalajs.dom.ext.Ajax
+
+import domain.UserDTO
+import shared.SharedMessages
 
 object PracticeSQLMain {
 
-  val userComponentRef = React.createRef[UserComponent.Def]
-  val userComponent = UserComponent(UserDTO(None, "Anónimo", true)).withRef(userComponentRef)
+  val guest = UserDTO(None, "Anónimo", true)
+
+  val userComponentRef           = React.createRef[UserComponent.Def]
+  val loginComponentRef          = React.createRef[LoginComponent.Def]
+  val changePasswordComponentRef = React.createRef[ChangePasswordComponent.Def]
+
+  val userComponent = UserComponent(guest, 
+                                    changePassword,
+                                    logged).withRef(userComponentRef)
+  
+  val changePasswordComponent = ChangePasswordComponent(true).withRef(changePasswordComponentRef)
+  val loginComponent = LoginComponent(logged).withRef(loginComponentRef)
 
   def main(args: Array[String]): Unit = {
     ReactDOM.render(
-      div(navigation, LoginComponent(logged)),
+      div(navigation, loginComponent, changePasswordComponent),
       dom.document.getElementById("root")
     )
+  }
+
+  def changePassword: () => Unit = () => {
+    loginComponentRef.current.setOn(false)
+    changePasswordComponentRef.current.setOn(true)
   }
 
   def logged = (userDTO: UserDTO) => {
@@ -41,8 +60,6 @@ object PracticeSQLMain {
             a(className := "nav-link", href := "#")("Inicio")),
       li(className := "nav-item")(
             a(className := "nav-link", href := "#")("Ejercicios")),
-      li(className := "nav-item")(
-            a(className := "nav-link", href := "#")("Salir")),
       li(className := "nav-item")(
             a(className := "nav-link disabled", 
               href      := "#", 

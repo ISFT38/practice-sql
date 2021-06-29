@@ -9,20 +9,16 @@ import slinky.core.{Component, SyntheticEvent}
 import slinky.core.annotations.react
 import slinky.core.facade.ReactElement
 import slinky.web.html._
-//import io.scalajs. // FIXME continuar
-
-//import scala.concurrent.ExecutionContext.Implicits.global
-import upickle.default._
 import scala.util.Success
 import scala.util.Failure
-
+import upickle.default._
 
 @react class LoginComponent extends Component {
   case class Props(logged: (UserDTO) => Unit)
   case class State(email: String, password: String, 
-                   activate: Boolean, error: Boolean, failure: Boolean)
+                   activate: Boolean, error: Boolean, failure: Boolean, on: Boolean)
 
-  def initialState: State = State("", "", true, false, false)
+  def initialState: State = State("", "", true, false, false, true)
 
   implicit val ec = scala.concurrent.ExecutionContext.global
 
@@ -30,16 +26,18 @@ import scala.util.Failure
   val csrfToken = dom.document.getElementById("csrfToken").asInstanceOf[dom.html.Input].value
 
   def clean() {
-    setState(State("", "", true, false, false)) 
+    setState(State("", "", true, false, false, true)) 
   }
 
+  def setOn(value: Boolean) { setState(state.copy(on = value)) }
+
   def updateEmail(e: SyntheticEvent[HTMLInputElement, org.scalajs.dom.Event]) =
-    setState(State(e.target.value, state.password, (e.target.value == "" || state.password == ""), false, false))
+    setState(State(e.target.value, state.password, (e.target.value == "" || state.password == ""), false, false, true))
 
   def updatePassword(e: SyntheticEvent[HTMLInputElement, org.scalajs.dom.Event]) =
-    setState(State(state.email, e.target.value, (state.email == "" || e.target.value == ""), false, false))
+    setState(State(state.email, e.target.value, (state.email == "" || e.target.value == ""), false, false, true))
 
-  def data(): String = write[LoginData](LoginData(0, state.email, state.password, false))
+  def data(): String = write[LoginData](LoginData(state.email, state.password))
 
   def login() {
     println("Click en ingresar")
@@ -67,7 +65,7 @@ import scala.util.Failure
     }
   }
 
-  def render(): ReactElement = main(className := "container", role := "main")(
+  def render(): ReactElement = main(className := "container", role := "main", hidden := !state.on )(
     h4("Ingresar"),
     div( className := "form-group")(
       label(htmlFor := "email")("Dirección de email"),

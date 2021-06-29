@@ -11,27 +11,28 @@ import domain.User
  */
 @RunWith(classOf[JUnitRunner])
 class DomainSpec extends Specification {
-
+/* domain.User simplified the email will be used as username
   "User" should {
-    "have a fullname Joe Doe" in {
-      val user = User(None, None, "fake@email.com", Some("Joe"), Some("Doe"), false, false)
+    "have a fullname joe.doe" in {
+      val user = User(None, "", "fake@email.com", Some("Joe"), Some("Doe"), false, false, Nil)
         
-      user.username must beEqualTo( "Joe Doe" )
+      user.username must beEqualTo( "joe.doe" )
     }
-    "have a fullname Joe" in {
-      val user = User(None, None, "fake@email.com", Some("Joe"), None, false, false)
+    "have a fullname joe" in {
+      val user = User(None, "", "fake@email.com", Some("Joe"), None, false, false, Nil)
         
-      user.username must beEqualTo( "Joe" )
+      user.username must beEqualTo( "joe" )
     }
-    "have a fullname Doe" in {
-      val user = User(None, None, "fake@email.com", None, Some("Doe"), false, false)
+    "have a fullname doe" in {
+      val user = User(None, "", "fake@email.com", None, Some("Doe"), false, false, Nil)
         
-      user.username must beEqualTo( "Doe" )
+      user.username must beEqualTo( "doe" )
     }
-    "have a fullname Anónimo" in {
-      val user = User(None, None, "fake@email.com", None, None, false, false)
+    "have a fullname anónimo" in {
+      val user = User(None, "", "fake@email.com", None, None, false, false, Nil)
         
-      user.username must beEqualTo( "Anónimo" )
+      user.username must beEqualTo( "anónimo" )
     }
   }
+  */
 }

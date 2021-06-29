@@ -14,18 +14,13 @@ import scala.util.Failure
 class UserDAOPostgres extends UserDAO {
   
   val logger: Logger = Logger(this.getClass())
-
-  lazy val ctx = new PostgresAsyncContext(SnakeCase, "ctx")
   
-  import ctx._
+  import db.ctx
+  import db.ctx._
 
   implicit val encodeRole = MappedEncoding[Role, String](_.value)
   implicit val decodeRole = MappedEncoding[String, Role]{ string =>
-    string match {
-      case "admin"     => Admin
-      case "professor" => Professor
-      case _           => Student
-    }
+    Role.fromValue(string)
   }
 
   implicit val userInsertMeta = insertMeta[User](_.userId)
@@ -35,11 +30,15 @@ class UserDAOPostgres extends UserDAO {
   override def save(user: User): Future[Option[Int]] = user.userId match {
     case None => 
       logger.debug("SAVE - INSERT")
-      val q = quote {
-        userTable.insert(lift(user)).returningGenerated(_.userId)
+      if(user.email == "" || user.passwd == "") Future(Some(0))
+      else {
+        val q = quote {
+          userTable.insert(lift(user.copy(passwd = 
+                                BCrypt.hashpw(user.passwd, BCrypt.gensalt(12)))))
+                                .returningGenerated(_.userId)
+        }
+        ctx.run(q)
       }
-      ctx.run(q)
-
     case Some(value) => 
       logger.debug("SAVE - UPDATE")
       val q = quote {
@@ -111,10 +110,15 @@ class UserDAOPostgres extends UserDAO {
           None
         case Some(user) => 
           logger.debug("SUCCESS-SOME")
-          if(BCrypt.checkpw(password, user.passwd.getOrElse("")))
+          logger.error(password)
+          logger.error(user.passwd)
+          logger.error(BCrypt.hashpw(password, BCrypt.gensalt(12)))
+          if(BCrypt.checkpw(password, user.passwd))
             Some(user.toUserDto)
-          else
+          else {
+            logger.debug("CONTRASEÑA INCORRECTA")
             None
+          }
       })
       case Failure(exception) => 
         logger.debug("FAILURE")

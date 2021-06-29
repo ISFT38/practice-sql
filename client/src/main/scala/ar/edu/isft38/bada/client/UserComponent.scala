@@ -4,16 +4,42 @@ import slinky.core.annotations.react
 import slinky.core.Component
 import slinky.core.facade.ReactElement
 import domain.UserDTO
+import org.scalajs.dom
 import slinky.web.html._
+import scala.util.Success
+import scala.util.Failure
+import scala.concurrent.ExecutionContext.Implicits.global
 
 @react class UserComponent extends Component {
-  case class Props(user: UserDTO)
+  case class Props(user: UserDTO, changePassword: () => Unit, logged: (UserDTO) => Unit)
   case class State(logged: Boolean, user: UserDTO)
 
   def initialState: State = State(false, props.user)
 
+  val url = dom.document.getElementById("logoutRoute").asInstanceOf[dom.html.Input].value
+  val csrfToken = dom.document.getElementById("csrfToken").asInstanceOf[dom.html.Input].value
+
   def updateUser(user: UserDTO): Unit = {
-    setState(state.copy(user = user))
+    setState(State(user != PracticeSQLMain.guest, user))
+  }
+
+  def changePassword() { props.changePassword() }
+
+  def logout() { 
+  
+    val headers = Map(
+      "Content-Type" -> "application/json",
+      "Csrf-Token"   -> csrfToken
+    )
+    
+    val request = dom.ext.Ajax.post(
+      url = url, 
+      headers = headers,
+      responseType = ""
+    )
+   
+    request.foreach ( xhr =>  props.logged(PracticeSQLMain.guest) )
+
   }
 
   def render(): ReactElement = 
@@ -22,9 +48,12 @@ import slinky.web.html._
        id := "navbarDropdownMenuLink", role := "button", data-"toggle" := "dropdown",
         aria-"haspopup" := "true", aria-"expanded" := "false")(state.user.username),
       div(className := "dropdown-menu", aria-"labelledby" := "navbarDropdownMenuLink")(
-        a(className := "dropdown-item", href := "#")(span("Perfil")),
-        a(className := "dropdown-item", href := "#")(span("Ayuda")),
-        a(className := "dropdown-item", href := "#")(span("Salir"))
+        a(className := "dropdown-item", href := "#", hidden := !state.logged, onClick := (() => changePassword()))
+          (span("Cambiar contraseña")),
+        a(className := "dropdown-item", href := "#", hidden := !state.logged, onClick := (() => logout()))
+          (span("Salir")),
+        a(className := "dropdown-item", href := "#", hidden := (state.logged))
+          (span("Ingrese para más opciones"))
       )
     )
 }

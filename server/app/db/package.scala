@@ -1,6 +1,7 @@
 import io.getquill.{PostgresAsyncContext, Escape}
+import io.getquill.SnakeCase
 
 package object db
 {
-    type DbContext = PostgresAsyncContext[Escape]
+    lazy val ctx = new PostgresAsyncContext(SnakeCase, "ctx")
 }

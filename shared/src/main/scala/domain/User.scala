@@ -1,6 +1,7 @@
 package domain
 
 import upickle.default.{ReadWriter => RW, macroRW}
+import domain.Role
 
 case class UserDTO(userId:         Option[Int],
                    username:       String,
@@ -11,19 +12,17 @@ object UserDTO {
 }
 
 case class User(userId:    Option[Int], 
-                passwd:    Option[String],
+                passwd:    String,
                 email:     String,
                 firstName: Option[String],
                 lastName:  Option[String],
                 confirmed: Boolean,
-                verified:  Boolean) {
+                verified:  Boolean,
+                roles:     List[Role]) {
 
-  val username: String = (firstName, lastName) match {
-    case (Some(f), Some(l)) => s"$f $l"
-    case (Some(f), None)    => f
-    case (None, Some(l))    => l
-    case (None, None)       => "Anónimo"
-  }
+  val toUserDto: UserDTO = UserDTO(userId, email, verified)
+}
 
-  val toUserDto: UserDTO = UserDTO(userId, username, verified)
+object User {
+  implicit val rw: RW[User] = macroRW
 }

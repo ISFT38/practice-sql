@@ -2,7 +2,7 @@ package domain
 
 import upickle.default.{ReadWriter => RW, macroRW}
 
-case class LoginData(id: Long, email: String, passwd: String, verified: Boolean)
+case class LoginData(email: String, passwd: String)
 
 object LoginData {
   implicit val rw: RW[LoginData] = macroRW

@@ -6,5 +6,8 @@
   <input type="hidden" id="csrfToken" value="@helper.CSRF.getToken.value">
   <input type="hidden" id="loginRoute" 
          value="@controllers.routes.UserController.login">
-
+  <input type="hidden" id="logoutRoute" 
+         value="@controllers.routes.UserController.logout">
+  <input type="hidden" id="changePasswordRoute" 
+         value="@controllers.routes.UserController.changePassword">
 }
