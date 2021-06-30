@@ -20,7 +20,6 @@ import daos.UserDAO
 import domain.LoginData
 import domain.Role
 import domain.User
-import domain.UserDTO
 import domain.ChangePasswordDTO
 import org.mindrot.jbcrypt.BCrypt
 
@@ -33,11 +32,12 @@ class UserController @Inject()(cc: ControllerComponents, dao: UserDAO)//, JsMess
   val dummyUser = User(None, "", "", None, None, false, false, Nil)
 
   def withSessionUsername(f: String => Future[Result])(implicit request: Request[AnyContent]): Future[Result] = {
-    request.session.get("username").map(f).getOrElse(Future.successful(Ok(write(Seq.empty[String]))))
+    request.session.get("username").map(f).getOrElse(Future.successful(BadRequest))
   }
 
   def withSessionUserId(f: Int => Future[Result])(implicit request: Request[AnyContent]): Future[Result] = {
-    request.session.get("userId").map(_.toInt).map(f).getOrElse(Future.successful(Ok(write(Seq.empty[String]))))
+    logger.debug("SESSION: " + request.session.data)
+    request.session.get("userid").map(_.toInt).map(f).getOrElse(Future.successful(BadRequest))
   }
 
   def login = Action.async { implicit request =>
@@ -45,7 +45,7 @@ class UserController @Inject()(cc: ControllerComponents, dao: UserDAO)//, JsMess
     jsonBody(request) match {
       case Some(json) =>        
         val loginData = read[LoginData](json)        
-        val logged: Future[Option[UserDTO]] = dao.validate(loginData.email, loginData.passwd)
+        val logged: Future[Option[User]] = dao.validate(loginData.email, loginData.passwd)
         
         val p = Promise[Result]()
         logged onComplete {
@@ -54,7 +54,7 @@ class UserController @Inject()(cc: ControllerComponents, dao: UserDAO)//, JsMess
             user match {
               case None      => p success (Ok(write(user)))
               case Some(usr) => p success (Ok(write(user)).withSession(
-                           "username"  -> usr.username, 
+                           "username"  -> usr.email, 
                            "userid"    -> usr.userId.getOrElse(0).toString,
                            "csrfToken" -> CSRF.getToken.map(_.value).getOrElse("")))
             }
@@ -85,46 +85,36 @@ class UserController @Inject()(cc: ControllerComponents, dao: UserDAO)//, JsMess
         val dto: ChangePasswordDTO = read[ChangePasswordDTO](json)    
         
         val validCaller = callerFuture flatMap { optUser =>
+          logger.warn(optUser.toString())
           optUser match {
             case None       => Future(None)
             case Some(user) => dao.validate(user.email, dto.oldPassword)
           }
         }
 
-        val result = dao.find(userId).andThen {
-          case Success(Some(user)) => dao.validate(user.email, dto.oldPassword)
-        }.recoverWith {
-          case Success(Some(user)) => dao.save(user.copy(passwd = dto.newPassword))
-        }.recover {
-          case Success(Some(id)) => 
-            if(id == 0)
-              Ok(write(false))
-            else
-              Ok(write(true))
-        }
-        val validCallerFuture = for {
-          callerOpt <- callerFuture
-          valid     <- dao.validate(callerOpt.getOrElse(dummyUser).email, dto.oldPassword) 
-        } yield valid
-
-        val savedIdFuture = validCallerFuture.map { validCaller =>
-          validCaller match {
-            case None => Future(Some(0))
-            case Some(user) => dao.save(user.copy(passwd = dto.newPassword))
+        val savedId = validCaller flatMap { optUser =>
+          logger.warn(optUser.toString())          
+          optUser match {
+            case None       => Future(Some(0))
+            case Some(user) => 
+              val encrypted = BCrypt.hashpw(dto.newPassword, BCrypt.gensalt(12))
+              logger.warn(user.toString())
+              dao.save(user.copy(passwd = encrypted))
           }
         }
 
-        val res = for {
-          idOpt <- savedIdFuture
-          id = idOpt.getOrElse(0)
-          result = 
-            if(id == 0)
+        val result = savedId map { optId =>
+          optId match {
+            case None => Ok(write(false))
+            case Some(id) => 
+              if(id == 0)
               Ok(write(false))
             else
               Ok(write(true))
-        } yield result 
-        
-        res
+          }
+            
+        }
+        result
       }
     }        
   }

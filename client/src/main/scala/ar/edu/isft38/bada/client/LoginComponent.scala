@@ -1,6 +1,6 @@
 package ar.edu.isft38.bada.client
 
-import domain.UserDTO
+import domain.User
 import domain.LoginData
 import org.scalajs.dom
 import org.scalajs.dom.ext.Ajax
@@ -14,7 +14,7 @@ import scala.util.Failure
 import upickle.default._
 
 @react class LoginComponent extends Component {
-  case class Props(logged: (UserDTO) => Unit)
+  case class Props(logged: (User) => Unit)
   case class State(email: String, password: String, 
                    activate: Boolean, error: Boolean, failure: Boolean, on: Boolean)
 
@@ -55,7 +55,7 @@ import upickle.default._
    
     request.onComplete {    
       case Success(xhr) =>
-        val user: Option[UserDTO] = read[Option[UserDTO]](xhr.responseText)
+        val user: Option[User] = read[Option[User]](xhr.responseText)
         user match {
           case None        => setState(state.copy(error = true))
           case Some(value) => props.logged(value)

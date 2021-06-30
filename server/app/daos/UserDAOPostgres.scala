@@ -42,7 +42,7 @@ class UserDAOPostgres extends UserDAO {
     case Some(value) => 
       logger.debug("SAVE - UPDATE")
       val q = quote {
-        userTable.update(lift(user)).returning(u => u.userId)
+        userTable.filter(_.userId == lift(user.userId)).update(lift(user)).returning(u => u.userId)
       }
       ctx.run(q)
   }
@@ -99,10 +99,10 @@ class UserDAOPostgres extends UserDAO {
     ctx.run(q)
   }
 
-  override def validate(email: String, password: String): Future[Option[UserDTO]] = {
+  override def validate(email: String, password: String): Future[Option[User]] = {
     logger.debug("VALIDATE")
     val u = find(email)
-    val p = Promise[Option[UserDTO]]()
+    val p = Promise[Option[User]]()
     u.onComplete {
       case Success(value) => p success (value match {
         case None => 
@@ -114,7 +114,7 @@ class UserDAOPostgres extends UserDAO {
           logger.error(user.passwd)
           logger.error(BCrypt.hashpw(password, BCrypt.gensalt(12)))
           if(BCrypt.checkpw(password, user.passwd))
-            Some(user.toUserDto)
+            Some(user)
           else {
             logger.debug("CONTRASEÑA INCORRECTA")
             None

@@ -3,7 +3,7 @@ package ar.edu.isft38.bada.client
 import slinky.core.annotations.react
 import slinky.core.Component
 import slinky.core.facade.ReactElement
-import domain.UserDTO
+import domain.User
 import org.scalajs.dom
 import slinky.web.html._
 import scala.util.Success
@@ -11,15 +11,15 @@ import scala.util.Failure
 import scala.concurrent.ExecutionContext.Implicits.global
 
 @react class UserComponent extends Component {
-  case class Props(user: UserDTO, changePassword: () => Unit, logged: (UserDTO) => Unit)
-  case class State(logged: Boolean, user: UserDTO)
+  case class Props(user: User, changePassword: () => Unit, logged: (User) => Unit)
+  case class State(logged: Boolean, user: User)
 
   def initialState: State = State(false, props.user)
 
   val url = dom.document.getElementById("logoutRoute").asInstanceOf[dom.html.Input].value
   val csrfToken = dom.document.getElementById("csrfToken").asInstanceOf[dom.html.Input].value
 
-  def updateUser(user: UserDTO): Unit = {
+  def updateUser(user: User): Unit = {
     setState(State(user != PracticeSQLMain.guest, user))
   }
 
@@ -46,7 +46,7 @@ import scala.concurrent.ExecutionContext.Implicits.global
     div(className := "nav-item dropdown")(
       a(className := "nav-link dropdown-toggle", href := "#",
        id := "navbarDropdownMenuLink", role := "button", data-"toggle" := "dropdown",
-        aria-"haspopup" := "true", aria-"expanded" := "false")(state.user.username),
+        aria-"haspopup" := "true", aria-"expanded" := "false")(state.user.email),
       div(className := "dropdown-menu", aria-"labelledby" := "navbarDropdownMenuLink")(
         a(className := "dropdown-item", href := "#", hidden := !state.logged, onClick := (() => changePassword()))
           (span("Cambiar contraseña")),

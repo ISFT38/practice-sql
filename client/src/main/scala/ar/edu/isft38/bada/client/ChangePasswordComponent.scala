@@ -1,7 +1,6 @@
 package ar.edu.isft38.bada.client
 
 import domain.ChangePasswordDTO
-import domain.UserDTO
 import org.scalajs.dom
 import org.scalajs.dom.ext.Ajax
 import org.scalajs.dom.raw.HTMLInputElement
@@ -53,7 +52,8 @@ import upickle.default._
     println("Click en ingresar")
     val headers = Map(
       "Content-Type" -> "application/json",
-      "Csrf-Token"   -> csrfToken
+      "Csrf-Token"   -> csrfToken,
+      "PLAY_SESSION" -> 
     )
     
     val request = Ajax.post(

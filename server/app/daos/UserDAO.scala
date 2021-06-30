@@ -2,7 +2,6 @@ package daos
 
 import domain.User
 import scala.concurrent.Future
-import domain.UserDTO
 
 trait UserDAO {
 
@@ -16,5 +15,5 @@ trait UserDAO {
 
   def delete(id: Int): Future[Boolean]
 
-  def validate(email: String, password: String): Future[Option[UserDTO]]
+  def validate(email: String, password: String): Future[Option[User]]
 }

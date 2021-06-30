@@ -10,12 +10,13 @@ import scala.util.Failure
 import org.scalajs.dom
 import org.scalajs.dom.ext.Ajax
 
-import domain.UserDTO
+import domain.User
 import shared.SharedMessages
+import domain.Role
 
 object PracticeSQLMain {
 
-  val guest = UserDTO(None, "Anónimo", true)
+  val guest = User(None, "", "Anónimo", None, None, false, true, List[Role](Role.Guest()))
 
   val userComponentRef           = React.createRef[UserComponent.Def]
   val loginComponentRef          = React.createRef[LoginComponent.Def]
@@ -40,8 +41,8 @@ object PracticeSQLMain {
     changePasswordComponentRef.current.setOn(true)
   }
 
-  def logged = (userDTO: UserDTO) => {
-    userComponentRef.current.updateUser(userDTO)
+  def logged = (user: User) => {
+    userComponentRef.current.updateUser(user)
   }
 
   def navigation = nav(className := "navbar navbar-expand-lg navbar-dark bg-dark")(
