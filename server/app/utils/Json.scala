@@ -1,4 +1,4 @@
-package util
+package utils
 
 import play.api.mvc.{AnyContent, Request}
 import play.api.mvc._
