@@ -3,12 +3,12 @@ package ar.edu.isft38.bada.client
 import slinky.core.annotations.react
 import slinky.core.Component
 import slinky.core.facade.ReactElement
-import domain.User
 import org.scalajs.dom
 import slinky.web.html._
 import scala.util.Success
 import scala.util.Failure
 import scala.concurrent.ExecutionContext.Implicits.global
+import domain.User
 
 @react class UserComponent extends Component {
   case class Props(user: User, changePassword: () => Unit, logged: (User) => Unit)
@@ -20,7 +20,7 @@ import scala.concurrent.ExecutionContext.Implicits.global
   val csrfToken = dom.document.getElementById("csrfToken").asInstanceOf[dom.html.Input].value
 
   def updateUser(user: User): Unit = {
-    setState(State(user != PracticeSQLMain.guest, user))
+    setState(State(user != User.guest, user))
   }
 
   def changePassword() { props.changePassword() }
@@ -38,7 +38,7 @@ import scala.concurrent.ExecutionContext.Implicits.global
       responseType = ""
     )
    
-    request.foreach ( xhr =>  props.logged(PracticeSQLMain.guest) )
+    request.foreach ( xhr =>  props.logged(User.guest) )
 
   }
 
