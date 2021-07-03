@@ -15,7 +15,8 @@ import scala.util.Failure
 import upickle.default._
 
 import shared.SharedMessages
-import util.Json._
+import utils.Json._
+import utils.SessionReader
 import daos.UserDAO
 import domain.LoginData
 import domain.Role
@@ -24,24 +25,17 @@ import domain.ChangePasswordDTO
 import org.mindrot.jbcrypt.BCrypt
 
 @Singleton
-class UserController @Inject()(cc: ControllerComponents, dao: UserDAO)//, JsMessagesFactory: JsMessagesFactory) 
+class UserController @Inject()(cc: ControllerComponents, 
+                               dao: UserDAO,
+                               session: SessionReader)//, JsMessagesFactory: JsMessagesFactory) 
                       extends AbstractController(cc) with I18nSupport {
 
   val logger = Logger(this.getClass())
 
   val dummyUser = User(None, "", "", None, None, false, false, Nil)
 
-  def withSessionUsername(f: String => Future[Result])(implicit request: Request[AnyContent]): Future[Result] = {
-    request.session.get("username").map(f).getOrElse(Future.successful(BadRequest))
-  }
-
-  def withSessionUserId(f: Int => Future[Result])(implicit request: Request[AnyContent]): Future[Result] = {
-    logger.debug("SESSION: " + request.session.data)
-    request.session.get("userid").map(_.toInt).map(f).getOrElse(Future.successful(BadRequest))
-  }
-
   def login = Action.async { implicit request =>
-    logger.debug("login method call")
+    logger.debug("Login method call")
     jsonBody(request) match {
       case Some(json) =>        
         val loginData = read[LoginData](json)        
@@ -54,9 +48,9 @@ class UserController @Inject()(cc: ControllerComponents, dao: UserDAO)//, JsMess
             user match {
               case None      => p success (Ok(write(user)))
               case Some(usr) => p success (Ok(write(user)).withSession(
-                           "username"  -> usr.email, 
-                           "userid"    -> usr.userId.getOrElse(0).toString,
-                           "csrfToken" -> CSRF.getToken.map(_.value).getOrElse("")))
+                SessionReader.KeyUsername -> usr.email, 
+                SessionReader.KeyUserId   -> usr.userId.getOrElse(0).toString,
+                SessionReader.KeyCSRF     -> CSRF.getToken.map(_.value).getOrElse("")))
             }
           case Failure(exception) => 
             logger.debug("Login failure")
@@ -79,7 +73,7 @@ class UserController @Inject()(cc: ControllerComponents, dao: UserDAO)//, JsMess
       case None => Future.successful(BadRequest)
       case Some(json) =>
       logger.warn("VALID JSON")
-      withSessionUserId { userId =>
+      session.withSessionUserId { userId =>
         logger.warn("VALID CALLER")
         val callerFuture = dao.find(userId)
         val dto: ChangePasswordDTO = read[ChangePasswordDTO](json)    
@@ -127,7 +121,7 @@ class UserController @Inject()(cc: ControllerComponents, dao: UserDAO)//, JsMess
     jsonBody(request) match {
       case None => Future.successful(BadRequest)
       case Some(json) =>
-      withSessionUserId { callerId =>
+      session.withSessionUserId { callerId =>
         val user = read[User](json)
         createIfValid(user, callerId)
       }
@@ -146,10 +140,7 @@ class UserController @Inject()(cc: ControllerComponents, dao: UserDAO)//, JsMess
     val saved = for {
       callerOpt <- callerUser
       caller = callerOpt.get
-      if(!user.roles.contains(Role.Admin)      && !user.roles.contains(Role.Guest)       &&
-          (user.roles.contains(Role.Professor) &&  caller.roles.contains(Role.Admin))    ||
-          (user.roles.contains(Role.Student)   && (caller.roles.contains(Role.Professor) ||
-                                                   caller.roles.contains(Role.Admin))))
+      if(caller.canCreate(user))
         savedId <- dao.save(user)
     } yield savedId
     
@@ -162,7 +153,8 @@ class UserController @Inject()(cc: ControllerComponents, dao: UserDAO)//, JsMess
   }
 
   def logout = Action.async { request =>
-    Future(Ok(write(true)).withSession(request.session - "username"))
-  } 
-  
+    Future(Ok(write(true)).withSession(request.session - SessionReader.KeyUsername
+                                                       - SessionReader.KeyUserId
+                                                       - SessionReader.KeyRoles))
+  }
 }

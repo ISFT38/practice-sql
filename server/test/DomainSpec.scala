@@ -3,6 +3,7 @@ import org.specs2.runner._
 import play.api.test._
 import org.specs2.mutable.Specification
 import domain.User
+import domain.Role
 
 /**
  * Add your spec here.
@@ -11,28 +12,29 @@ import domain.User
  */
 @RunWith(classOf[JUnitRunner])
 class DomainSpec extends Specification {
-/* domain.User simplified the email will be used as username
+  val professor = User(None, "", "fake@email.com", 
+                      None, None, false, false, List(Role.Professor()))
+  val admin     = User(None, "", "fake@email.com", 
+                      None, None, false, false, List(Role.Admin()))
+  val guest     = User(None, "", "fake@email.com", 
+                      None, None, false, false, List(Role.Guest()))
+  val student   = User(None, "", "fake@email.com", 
+                      None, None, false, false, List(Role.Student()))
+  val professorGuest = User(None, "", "fake@email.com", 
+                      None, None, false, false, List(Role.Professor(), Role.Guest()))
+  val professorStudent = User(None, "", "fake@email.com", 
+                      None, None, false, false, List(Role.Professor(), Role.Student()))
+                      
+  
   "User" should {
-    "have a fullname joe.doe" in {
-      val user = User(None, "", "fake@email.com", Some("Joe"), Some("Doe"), false, false, Nil)
-        
-      user.username must beEqualTo( "joe.doe" )
-    }
-    "have a fullname joe" in {
-      val user = User(None, "", "fake@email.com", Some("Joe"), None, false, false, Nil)
-        
-      user.username must beEqualTo( "joe" )
-    }
-    "have a fullname doe" in {
-      val user = User(None, "", "fake@email.com", None, Some("Doe"), false, false, Nil)
-        
-      user.username must beEqualTo( "doe" )
-    }
-    "have a fullname anónimo" in {
-      val user = User(None, "", "fake@email.com", None, None, false, false, Nil)
-        
-      user.username must beEqualTo( "anónimo" )
-    }
+    "never create a Guest user" in { !admin.canCreate(guest) }
+    "never create a Guest user with other role" in { !admin.canCreate(professorGuest) }
+    "never create a Admin user" in { !admin.canCreate(admin) }
+    "never create a user if he is a Student" in { !student.canCreate(student) }
+    "never create a Professor if he is a Professor" in { !professor.canCreate(professor) }
+    "never create a Professor if he is a Professor" in { !professor.canCreate(professorStudent) }
+    "have role admin if he is Admin" in { admin.roles.contains(Role.Admin())}
+    "create Professors if it is Admin" in { admin.canCreate(professor) }
+    
   }
-  */
 }
