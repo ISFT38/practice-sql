@@ -95,7 +95,6 @@ class UserDAOPostgres extends UserDAO {
     val q = quote {
       userTable.filter(u => u.userId.getOrElse(0) == lift(id)).delete.returning(u => !u.userId.isEmpty)
     }
-    val p = Promise[Option[Int]]()
     ctx.run(q)
   }
 
