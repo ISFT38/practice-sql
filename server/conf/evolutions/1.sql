@@ -27,8 +27,17 @@ CREATE INDEX ON user_role(user_id);
 create view login_data as
   select user_data.user_id as id, email, passwd, verified from user_data;
 
+create table challenge (
+  challenge_id      serial primary key,
+  question          varchar(512) not null,
+  dbase             varchar(80) not null,
+  answer_query       varchar(512) not null
+);
+
 -- !Downs
 
 DROP TABLE user_role;
 
 DROP TABLE user_data;
+
+DROP TABLE challenge;

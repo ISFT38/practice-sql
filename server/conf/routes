@@ -6,7 +6,9 @@
 GET         /                             controllers.Application.index
 POST        /login                        controllers.UserController.login
 POST        /logout                       controllers.UserController.logout
+POST        /createUser                   controllers.UserController.create
 POST        /changePassword               controllers.UserController.changePassword
+POST        /createChallenge              controllers.ChallengeController.create
         
 # Prefix must match `play.assets.urlPrefix`
 GET        /assets/*file                 controllers.Assets.at(file)

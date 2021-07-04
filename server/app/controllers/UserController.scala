@@ -50,6 +50,7 @@ class UserController @Inject()(cc: ControllerComponents,
               case Some(usr) => p success (Ok(write(user)).withSession(
                 SessionReader.KeyUsername -> usr.email, 
                 SessionReader.KeyUserId   -> usr.userId.getOrElse(0).toString,
+                SessionReader.KeyRoles    -> usr.roles.map(_.value).mkString(" "),
                 SessionReader.KeyCSRF     -> CSRF.getToken.map(_.value).getOrElse("")))
             }
           case Failure(exception) => 
@@ -68,18 +69,18 @@ class UserController @Inject()(cc: ControllerComponents,
    * Change the password of the signed User.
    */
   def changePassword = Action.async { implicit request =>
-    logger.warn("CHANGE PASSWORD CALLED")
+    logger.debug("CHANGE PASSWORD CALLED")
     jsonBody(request) match {
       case None => Future.successful(BadRequest)
       case Some(json) =>
-      logger.warn("VALID JSON")
+      logger.debug("VALID JSON")
       session.withSessionUserId { userId =>
-        logger.warn("VALID CALLER")
+        logger.debug("VALID CALLER")
         val callerFuture = dao.find(userId)
         val dto: ChangePasswordDTO = read[ChangePasswordDTO](json)    
         
         val validCaller = callerFuture flatMap { optUser =>
-          logger.warn(optUser.toString())
+          logger.debug(optUser.toString())
           optUser match {
             case None       => Future(None)
             case Some(user) => dao.validate(user.email, dto.oldPassword)
@@ -87,12 +88,12 @@ class UserController @Inject()(cc: ControllerComponents,
         }
 
         val savedId = validCaller flatMap { optUser =>
-          logger.warn(optUser.toString())          
+          logger.debug(optUser.toString())          
           optUser match {
             case None       => Future(Some(0))
             case Some(user) => 
               val encrypted = BCrypt.hashpw(dto.newPassword, BCrypt.gensalt(12))
-              logger.warn(user.toString())
+              logger.debug(user.toString())
               dao.save(user.copy(passwd = encrypted))
           }
         }

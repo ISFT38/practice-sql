@@ -23,6 +23,8 @@ import domain.User
     setState(State(user != User.guest, user))
   }
 
+  def getUser(): User = state.user
+
   def changePassword() { props.changePassword() }
 
   def logout() { 

@@ -58,7 +58,9 @@ import upickle.default._
         val user: Option[User] = read[Option[User]](xhr.responseText)
         user match {
           case None        => setState(state.copy(error = true))
-          case Some(value) => props.logged(value)
+          case Some(value) => 
+            clean()
+            props.logged(value)
         }
       case Failure(exception) =>
         setState(state.copy(failure = true))

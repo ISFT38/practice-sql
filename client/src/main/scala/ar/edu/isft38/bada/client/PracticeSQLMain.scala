@@ -1,9 +1,9 @@
 package ar.edu.isft38.bada.client
 
+import slinky.core.facade.React
 import slinky.core._
 import slinky.web.ReactDOM
 import slinky.web.html._
-import slinky.core.facade.React
 
 import scala.util.Success
 import scala.util.Failure
@@ -11,61 +11,64 @@ import org.scalajs.dom
 import org.scalajs.dom.ext.Ajax
 
 import domain.User
-import shared.SharedMessages
 import domain.Role
+import shared.SharedMessages
 
 object PracticeSQLMain {
 
-  val guest = User(None, "", "Anónimo", None, None, false, true, List[Role](Role.Guest()))
+  val userComponentRef            = React.createRef[UserComponent.Def]
+  val loginComponentRef           = React.createRef[LoginComponent.Def]
+  val changePasswordComponentRef  = React.createRef[ChangePasswordComponent.Def]
+  val createChallengeComponentRef = React.createRef[CreateChallengeComponent.Def]
 
-  val userComponentRef           = React.createRef[UserComponent.Def]
-  val loginComponentRef          = React.createRef[LoginComponent.Def]
-  val changePasswordComponentRef = React.createRef[ChangePasswordComponent.Def]
-
-  val userComponent = UserComponent(guest, 
+  val userComponent = UserComponent(User.guest, 
                                     changePassword,
                                     logged).withRef(userComponentRef)
   
-  val changePasswordComponent = ChangePasswordComponent(true).withRef(changePasswordComponentRef)
+  val changePasswordComponent = ChangePasswordComponent().withRef(changePasswordComponentRef)
   val loginComponent = LoginComponent(logged).withRef(loginComponentRef)
+  val createUserComponent = CreateUserComponent(true)
+  val createChallengeComponent = CreateChallengeComponent().withRef(createChallengeComponentRef)
+  val navigationComponent = NavigationComponent(exercises, home, userComponent)
 
   def main(args: Array[String]): Unit = {
     ReactDOM.render(
-      div(navigation, loginComponent, changePasswordComponent),
+      div(navigationComponent, loginComponent, 
+                      changePasswordComponent, 
+                      createUserComponent, 
+                      createChallengeComponent),
       dom.document.getElementById("root")
     )
   }
 
-  def changePassword: () => Unit = () => {
+  def allOff(): Unit = {
     loginComponentRef.current.setOn(false)
+    changePasswordComponentRef.current.setOn(false)
+    createChallengeComponentRef.current.setOn(false)
+  }
+
+  def home: () => Unit = () => {
+    allOff()
+    if(userComponentRef.current.getUser() == User.guest) {
+      loginComponentRef.current.setOn(true)
+    } else {
+      createChallengeComponentRef.current.setOn(true)
+    }
+  }
+
+  def changePassword: () => Unit = () => {
+    allOff()
     changePasswordComponentRef.current.setOn(true)
   }
 
   def logged = (user: User) => {
     userComponentRef.current.updateUser(user)
+    home()
   }
 
-  def navigation = nav(className := "navbar navbar-expand-lg navbar-dark bg-dark")(
-    a(className := "navbar-brand", href := "#")("Practice-SQL"),
-    button(className       := "navbar-toggler", 
-           `type`          := "button", 
-           data-"toggle"   := "collapse", 
-           data-"target"   := "#navbarNav",
-           aria-"controls" := "navbarNav",
-           aria-"expanded" := "false",
-           aria-"label"    := "Toggle navigation",
-           span(className := "navbar-toggler-icon")),    
-    div(className := "collapse navbar-collapse", id := "navbarNav")(
-    ul(className := "navbar-nav")(
-      li(className := "nav-item active")(
-            a(className := "nav-link", href := "#")("Inicio")),
-      li(className := "nav-item")(
-            a(className := "nav-link", href := "#")("Ejercicios")),
-      li(className := "nav-item")(
-            a(className := "nav-link disabled", 
-              href      := "#", 
-        aria-"disabled" := "true")("Resultados"))
-    ),
-    div(className := "navbar-collapse collapse w-100 order-3 dual-collapse2")(userComponent))
-  )
+  def exercises(): () => Unit = () => {
+    allOff()
+    createChallengeComponentRef.current.setOn(true)
+  }
+
 }

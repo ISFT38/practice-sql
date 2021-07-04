@@ -11,26 +11,29 @@ import slinky.web.html._
 import scala.util.Success
 import scala.util.Failure
 import upickle.default._
+import domain.User
 
-@react class ChangePasswordComponent extends Component {
-  type Props = Unit
-  case class State(oldPassword: String, password: String, passConf: String, distinct: Boolean,
-                   activate: Boolean, error: Boolean, failure: Boolean, success: Boolean, on: Boolean)
+@react class CreateUserComponent extends Component {
+  case class Props(admin: Boolean)
+  case class State(firstName: String, lastName: String, email: String, 
+                   activate: Boolean, error: Boolean, admin: Boolean,
+                   failure: Boolean, success: Boolean, on: Boolean)
 
-  def initialState: State = State("", "", "", false, true, false, false, false, false)
+  def initialState: State = State("", "", "", false, false, props.admin, 
+                                  false, false, false)
 
   implicit val ec = scala.concurrent.ExecutionContext.global
 
-  val url = dom.document.getElementById("changePasswordRoute").asInstanceOf[dom.html.Input].value
+  val url = dom.document.getElementById("createUserRoute").asInstanceOf[dom.html.Input].value
   val csrfToken = dom.document.getElementById("csrfToken").asInstanceOf[dom.html.Input].value
 
   def clean() {
-    setState(State("", "", "", false, true, false, false, false, true)) 
+    setState(State("", "", "", false, false, props.admin, false, false, false)) 
   }
 
   def setOn(value: Boolean) { setState(state.copy(on = value)) }
-
-  def updateOldPassword(e: SyntheticEvent[HTMLInputElement, org.scalajs.dom.Event]) =
+/*
+  def updateFirstName(e: SyntheticEvent[HTMLInputElement, org.scalajs.dom.Event]) =
     setState(State(e.target.value, state.password, state.passConf, state.password != state.passConf,
                   (e.target.value == "" || state.password == "" || state.passConf == "" || state.password == state.passConf),
                   false, false, false, true))
@@ -75,20 +78,20 @@ import upickle.default._
         setState(state.copy(failure = true))
     }
   }
-
+*/
   def render(): ReactElement = main(className := "container", role := "main", hidden := !state.on)(
-    h4("Cambiar contraseña"),
+    h4("Crear usuario"))/*,
     div( className := "form-group")(
-      label(htmlFor := "email")("Contraseña actual"),
-      input(`type`              := "password",
-            id                  := "oldPassword",
+      label(htmlFor := "firs_name")("Nombre"),
+      input(`type`              := "text",
+            id                  := "first_name",
             className           := "form-control", 
-            aria-"describedby"  := "contraHelp", 
-            placeholder         := "Ingrese su contraseña actual",
-            value               := state.oldPassword,
-            onChange            := ((e) => updateOldPassword(e))),
-      small(id := "contraHelp", className :="form-text text-muted")
-           ("La contraseña con la que ingresó al sitio.")
+            aria-"describedby"  := "firstHelp", 
+            placeholder         := "Ingrese el nombre del nuevo usuario",
+            value               := state.firstName,
+            onChange            := ((e) => updateFirstName(e))),
+      small(id := "firstHelp", className :="form-text text-muted")
+           ("El nombre de pila del usuario que quiere crear en el sistema.")
     ),
     div( className := "form-group")(
       label(htmlFor := "password")("Nueva contraseña"),
@@ -132,4 +135,5 @@ import upickle.default._
       "La nueva contraseña y la confirmación no coinciden."
     )
   )
+  */
 }

@@ -109,13 +109,11 @@ class UserDAOPostgres extends UserDAO {
           None
         case Some(user) => 
           logger.debug("SUCCESS-SOME")
-          logger.error(password)
-          logger.error(user.passwd)
-          logger.error(BCrypt.hashpw(password, BCrypt.gensalt(12)))
+          println(user)
           if(BCrypt.checkpw(password, user.passwd))
             Some(user)
           else {
-            logger.debug("CONTRASEÑA INCORRECTA")
+            logger.debug("WRONG PASSWORD")
             None
           }
       })
