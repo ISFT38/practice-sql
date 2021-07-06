@@ -14,11 +14,11 @@ import scala.util.Failure
 import upickle.default._
 
 @react class LoginComponent extends Component {
-  case class Props(logged: (User) => Unit)
+  case class Props(on: Boolean, logged: (User) => Unit)
   case class State(email: String, password: String, 
-                   activate: Boolean, error: Boolean, failure: Boolean, on: Boolean)
+                   activate: Boolean, error: Boolean, failure: Boolean)
 
-  def initialState: State = State("", "", true, false, false, true)
+  def initialState: State = State("", "", true, false, false)
 
   implicit val ec = scala.concurrent.ExecutionContext.global
 
@@ -26,16 +26,14 @@ import upickle.default._
   val csrfToken = dom.document.getElementById("csrfToken").asInstanceOf[dom.html.Input].value
 
   def clean() {
-    setState(State("", "", true, false, false, true)) 
+    setState(State("", "", true, false, false)) 
   }
 
-  def setOn(value: Boolean) { setState(state.copy(on = value)) }
-
   def updateEmail(e: SyntheticEvent[HTMLInputElement, org.scalajs.dom.Event]) =
-    setState(State(e.target.value, state.password, (e.target.value == "" || state.password == ""), false, false, true))
+    setState(State(e.target.value, state.password, (e.target.value == "" || state.password == ""), false, false))
 
   def updatePassword(e: SyntheticEvent[HTMLInputElement, org.scalajs.dom.Event]) =
-    setState(State(state.email, e.target.value, (state.email == "" || e.target.value == ""), false, false, true))
+    setState(State(state.email, e.target.value, (state.email == "" || e.target.value == ""), false, false))
 
   def data(): String = write[LoginData](LoginData(state.email, state.password))
 
@@ -67,7 +65,7 @@ import upickle.default._
     }
   }
 
-  def render(): ReactElement = main(className := "container", role := "main", hidden := !state.on )(
+  def render(): ReactElement = main(className := "container", role := "main", hidden := !props.on )(
     h4("Ingresar"),
     div( className := "form-group")(
       label(htmlFor := "email")("Dirección de email"),

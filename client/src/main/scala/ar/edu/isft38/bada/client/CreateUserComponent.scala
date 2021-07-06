@@ -14,13 +14,13 @@ import upickle.default._
 import domain.User
 
 @react class CreateUserComponent extends Component {
-  case class Props(admin: Boolean)
+  case class Props(on: Boolean)
   case class State(firstName: String, lastName: String, email: String, 
                    activate: Boolean, error: Boolean, admin: Boolean,
-                   failure: Boolean, success: Boolean, on: Boolean)
+                   failure: Boolean, success: Boolean)
 
-  def initialState: State = State("", "", "", false, false, props.admin, 
-                                  false, false, false)
+  def initialState: State = State("", "", "", false, false, false, 
+                                  false, false)
 
   implicit val ec = scala.concurrent.ExecutionContext.global
 
@@ -28,10 +28,9 @@ import domain.User
   val csrfToken = dom.document.getElementById("csrfToken").asInstanceOf[dom.html.Input].value
 
   def clean() {
-    setState(State("", "", "", false, false, props.admin, false, false, false)) 
+    setState(State("", "", "", false, false, false, false, false)) 
   }
-
-  def setOn(value: Boolean) { setState(state.copy(on = value)) }
+  
 /*
   def updateFirstName(e: SyntheticEvent[HTMLInputElement, org.scalajs.dom.Event]) =
     setState(State(e.target.value, state.password, state.passConf, state.password != state.passConf,
@@ -79,7 +78,7 @@ import domain.User
     }
   }
 */
-  def render(): ReactElement = main(className := "container", role := "main", hidden := !state.on)(
+  def render(): ReactElement = main(className := "container", role := "main", hidden := !props.on)(
     h4("Crear usuario"))/*,
     div( className := "form-group")(
       label(htmlFor := "firs_name")("Nombre"),

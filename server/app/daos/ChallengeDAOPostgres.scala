@@ -51,6 +51,12 @@ class ChallengeDAOPostgres extends ChallengeDAO {
     p.future
   }
 
+  def find(pageSize: Int, page: Int): Future[Seq[Challenge]] = {
+    val q = quote { challengeTable.drop(lift(page * pageSize)).take(lift(pageSize)) }
+
+    ctx.run(q)
+  }
+
   def findAll: Future[List[Challenge]] = ctx.run(challengeTable)
 
   def delete(id: Int): Future[Boolean] = {

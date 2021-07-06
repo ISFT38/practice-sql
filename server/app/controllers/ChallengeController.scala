@@ -25,6 +25,12 @@ class ChallengeController @Inject()(cc: ControllerComponents,
 
   val logger = Logger(this.getClass())
 
+  def challenges(pageSize: Int, page: Int) = Action.async { implicit request =>
+    session.withRole(Role.Professor()) { () =>
+      dao.find(pageSize, page).map(c => Ok(write(c)))
+    }
+  }
+  
   /*
    * Only Professors can create Challenges
    */
@@ -46,5 +52,11 @@ class ChallengeController @Inject()(cc: ControllerComponents,
           }
         }
       }
+  }
+
+  def delete(id: Int) = Action.async { implicit request =>
+    session.withRole(Role.Professor()) { () =>
+      dao.delete(id).map(deleted => if(deleted) Ok("") else InternalServerError(""))
+    }
   }
 }

@@ -14,11 +14,11 @@ import upickle.default._
 import domain.Challenge
 
 @react class CreateChallengeComponent extends Component {
-  type Props = Unit
+  case class Props(on: Boolean)
   case class State(question: String, database: String, query: String,
-                   activate: Boolean, failure: Boolean, success: Boolean, on: Boolean)
+                   activate: Boolean, failure: Boolean, success: Boolean)
 
-  def initialState: State = State("", "", "", false, false, false, false)
+  def initialState: State = State("", "", "", false, false, false)
 
   implicit val ec = scala.concurrent.ExecutionContext.global
 
@@ -26,25 +26,23 @@ import domain.Challenge
   val csrfToken = dom.document.getElementById("csrfToken").asInstanceOf[dom.html.Input].value
 
   def clean() {
-    setState(State("", "", "", false, true, false, false)) 
+    setState(State("", "", "", false, true, false)) 
   }
-
-  def setOn(value: Boolean) { setState(state.copy(on = value)) }
 
   def updateQuestion(e: SyntheticEvent[HTMLInputElement, org.scalajs.dom.Event]) =
     setState(State(e.target.value, state.database, state.query,
                   (e.target.value == "" || state.database == ""),
-                  false, false, true))
+                  false, false))
 
   def updateDatabase(e: SyntheticEvent[HTMLInputElement, org.scalajs.dom.Event]) =
     setState(State(state.question, e.target.value, state.query,
                   (state.question == "" || e.target.value == ""),
-                  false, false, true))
+                  false, false))
 
   def updateQuery(e: SyntheticEvent[HTMLInputElement, org.scalajs.dom.Event]) =
     setState(State(state.question, state.database, e.target.value,
                   (state.question == "" || e.target.value == ""),
-                  false, false, true))
+                  false, false))
 
   def data(): String = write[Challenge](Challenge(None, state.question, state.database, state.query))
 
@@ -65,7 +63,7 @@ import domain.Challenge
       case Success(xhr) =>
         val id: Int = read[Int](xhr.responseText)
         if(id > 0) {
-          setState(state.copy(question = "", success = true))
+          setState(state.copy(question = "", query = "", success = true))
         } else {
           setState(state.copy(failure = true))
         } 
@@ -74,7 +72,7 @@ import domain.Challenge
     }
   }
 
-  def render(): ReactElement = main(className := "container", role := "main", hidden := !state.on)(
+  def render(): ReactElement = main(className := "container", role := "main", hidden := !props.on)(
     h4("Crear desafío"),
     div( className := "form-group")(
       label(htmlFor := "database")("Base de datos"),

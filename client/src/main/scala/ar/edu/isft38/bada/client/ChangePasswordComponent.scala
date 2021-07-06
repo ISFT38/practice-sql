@@ -13,11 +13,11 @@ import scala.util.Failure
 import upickle.default._
 
 @react class ChangePasswordComponent extends Component {
-  type Props = Unit
+  case class Props(on: Boolean)
   case class State(oldPassword: String, password: String, passConf: String, distinct: Boolean,
-                   activate: Boolean, error: Boolean, failure: Boolean, success: Boolean, on: Boolean)
+                   activate: Boolean, error: Boolean, failure: Boolean, success: Boolean)
 
-  def initialState: State = State("", "", "", false, true, false, false, false, false)
+  def initialState: State = State("", "", "", false, true, false, false, false)
 
   implicit val ec = scala.concurrent.ExecutionContext.global
 
@@ -25,25 +25,23 @@ import upickle.default._
   val csrfToken = dom.document.getElementById("csrfToken").asInstanceOf[dom.html.Input].value
 
   def clean() {
-    setState(State("", "", "", false, true, false, false, false, true)) 
+    setState(State("", "", "", false, true, false, false, false)) 
   }
-
-  def setOn(value: Boolean) { setState(state.copy(on = value)) }
 
   def updateOldPassword(e: SyntheticEvent[HTMLInputElement, org.scalajs.dom.Event]) =
     setState(State(e.target.value, state.password, state.passConf, state.password != state.passConf,
                   (e.target.value == "" || state.password == "" || state.passConf == "" || state.password == state.passConf),
-                  false, false, false, true))
+                  false, false, false))
 
   def updatePassword(e: SyntheticEvent[HTMLInputElement, org.scalajs.dom.Event]) =
     setState(State(state.oldPassword, e.target.value, state.passConf,  e.target.value != state.passConf,
                   (state.oldPassword == "" || e.target.value == "" || e.target.value != state.passConf),
-                  false, false, false, true))
+                  false, false, false))
 
   def updatePassConf(e: SyntheticEvent[HTMLInputElement, org.scalajs.dom.Event]) =
     setState(State(state.oldPassword, state.password, e.target.value,  state.password != e.target.value,
                   (state.oldPassword == "" || e.target.value == "" || state.password != e.target.value),
-                  false, false, false, true))
+                  false, false, false))
 
 
   def data(): String = write[ChangePasswordDTO](ChangePasswordDTO(state.oldPassword, state.password))
@@ -76,7 +74,7 @@ import upickle.default._
     }
   }
 
-  def render(): ReactElement = main(className := "container", role := "main", hidden := !state.on)(
+  def render(): ReactElement = main(className := "container", role := "main", hidden := !props.on)(
     h4("Cambiar contraseña"),
     div( className := "form-group")(
       label(htmlFor := "email")("Contraseña actual"),
