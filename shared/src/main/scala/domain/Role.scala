@@ -9,10 +9,10 @@ sealed trait Role {
 object Role {
   import upickle.default._
 
-  case class Admin()     extends Role { val value = "admin" }
-  case class Professor() extends Role { val value = "professor"}
-  case class Student()   extends Role { val value = "student" }
-  case class Guest()     extends Role { val value = "guest" }
+  final case class Admin()     extends Role { val value = "admin" }
+  final case class Professor() extends Role { val value = "professor"}
+  final case class Student()   extends Role { val value = "student" }
+  final case class Guest()     extends Role { val value = "guest" }
 
   implicit val rw: RW[Role] = ReadWriter.merge(macroRW[Admin], 
                                                macroRW[Professor], 
