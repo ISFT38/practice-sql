@@ -20,7 +20,7 @@ import scala.util.Failure
 @Singleton
 class ChallengeController @Inject()(cc: ControllerComponents, 
                                     dao: ChallengeDAO, 
-                                    session: SessionReader)//, JsMessagesFactory: JsMessagesFactory) 
+                                    session: SessionReader) 
                       extends AbstractController(cc) with I18nSupport {
 
   val logger = Logger(this.getClass())

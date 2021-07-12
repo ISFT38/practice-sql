@@ -15,7 +15,8 @@ import domain.User
   case class Props(user: User, 
                    guest: Boolean, 
                    changePassword: () => Unit, 
-                   logged: (User) => Unit)
+                   logged: (User) => Unit,
+                   messages: Map[String, String])
 
   val url = dom.document.getElementById("logoutRoute").asInstanceOf[dom.html.Input].value
   val csrfToken = dom.document.getElementById("csrfToken").asInstanceOf[dom.html.Input].value
@@ -48,11 +49,11 @@ import domain.User
         aria-"haspopup" := "true", aria-"expanded" := "false")(props.user.email),
       div(className := "dropdown-menu", aria-"labelledby" := "navbarDropdownMenuLink")(
         a(className := "dropdown-item", href := "#", hidden := props.guest, onClick := (() => changePassword()))
-          (span("Cambiar contraseña")),
+          (span(props.messages.get("password.change"))),
         a(className := "dropdown-item", href := "#", hidden := props.guest, onClick := (() => logout()))
-          (span("Salir")),
+          (span(props.messages.get("logout"))),
         a(className := "dropdown-item", href := "#", hidden := (!props.guest))
-          (span("Ingrese para más opciones"))
+          (span(props.messages.get("login.options")))
       )
     )
 }

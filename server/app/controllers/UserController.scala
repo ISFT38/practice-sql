@@ -2,7 +2,6 @@ package controllers
 
 import javax.inject._
 
-//import jsmessages.JsMessagesFactory
 import play.api.Logger
 import play.api.i18n.I18nSupport
 import play.api.mvc._
@@ -27,7 +26,7 @@ import org.mindrot.jbcrypt.BCrypt
 @Singleton
 class UserController @Inject()(cc: ControllerComponents, 
                                dao: UserDAO,
-                               session: SessionReader)//, JsMessagesFactory: JsMessagesFactory) 
+                               session: SessionReader)
                       extends AbstractController(cc) with I18nSupport {
 
   val logger = Logger(this.getClass())

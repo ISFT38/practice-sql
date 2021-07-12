@@ -14,7 +14,7 @@ import scala.util.Failure
 import upickle.default._
 
 @react class LoginComponent extends Component {
-  case class Props(on: Boolean, logged: (User) => Unit)
+  case class Props(on: Boolean, logged: (User) => Unit, messages: Map[String, String])
   case class State(email: String, password: String, 
                    activate: Boolean, error: Boolean, failure: Boolean)
 
@@ -38,7 +38,6 @@ import upickle.default._
   def data(): String = write[LoginData](LoginData(state.email, state.password))
 
   def login() {
-    println("Click en ingresar")
     val headers = Map(
       "Content-Type" -> "application/json",
       "Csrf-Token"   -> csrfToken
@@ -66,44 +65,44 @@ import upickle.default._
   }
 
   def render(): ReactElement = main(className := "container", role := "main", hidden := !props.on )(
-    h4("Ingresar"),
+    h4(props.messages.get("login")),
     div( className := "form-group")(
-      label(htmlFor := "email")("Dirección de email"),
+      label(htmlFor := "email")(props.messages.get("email.address")),
       input(`type`              := "email",
             id                  := "email",
             className           := "form-control", 
             aria-"describedby"  := "emailHelp", 
-            placeholder         := "Ingresar el email",
+            placeholder         := props.messages.get("email.placeholder"),
             value               := state.email,
             onChange            := ((e) => updateEmail(e))),
       small(id := "emailHelp", className :="form-text text-muted")
-           ("El mismo email que el usado en el campus.")
+           (props.messages.get("email.help"))
     ),
     div( className := "form-group")(
-      label(htmlFor := "password")("Contraseña"),
+      label(htmlFor := "password")(props.messages.get("password")),
       input(`type`              := "password",
             id                  := "password",
             className           := "form-control", 
             aria-"describedby"  := "passwordHelp", 
-            placeholder         := "Ingresar la contraseña",
+            placeholder         := props.messages.get("password.placeholder"),
             value               := state.password,
             onChange            := ((e) => updatePassword(e))),
       small(id := "passwordHelp", className :="form-text text-muted")
-           ("Al menos 8 caracteres."),     
+           (props.messages.get("password.help")),     
     ),
     div(
       button(className := "btn btn-outline-secondary",
-             onClick := ((e) => clean()))("Limpiar"),
+             onClick := ((e) => clean()))(props.messages.get("button.clean")),
       span("   "),
       button(className := "btn btn-outline-success",
-             onClick := ((e) => login()), disabled := state.activate)("Ingresar")
+             onClick := ((e) => login()), disabled := state.activate)(props.messages.get("login"))
     ),
     br(),
     div(className := "alert alert-danger",  role := "alert", hidden := !state.error)(
-      "Usuario o contraseña incorrectos."
+      props.messages.get("password.wrong")
     ),
     div(className := "alert alert-danger",  role := "alert", hidden := !state.failure)(
-      "Hubo un error al intentar validar la identidad, por favor intente nuevamente."
+      props.messages.get("password.error")
     )
   )
 }

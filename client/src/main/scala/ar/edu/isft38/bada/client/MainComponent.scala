@@ -8,15 +8,19 @@ import slinky.core.facade.React
 import domain.User
 
 @react class MainComponent extends Component {
-  type Props = Unit
+  case class Props(messages: Map[String, String])
   case class State(user: User, guest: Boolean, 
                    login: Boolean, 
-                   challenges: Boolean, 
+                   challenges: Boolean,
+                   newChallenge: Boolean,
                    password: Boolean)
 
-  def initialState: State = State(User.guest, true, true, false, false)
+  def initialState: State = State(User.guest, true, true, false, false, false)
 
-  def allOff(): Unit = setState(state.copy(login = false, challenges = false, password = false))
+  def allOff(): Unit = setState(state.copy(login = false, 
+                                           challenges = false, 
+                                           password = false, 
+                                           newChallenge = false))
 
   def home: () => Unit = () => {
     allOff()
@@ -37,9 +41,12 @@ import domain.User
     home()
   }
 
-  def exercises(): () => Unit = () => {
-    allOff()
-    setState(state.copy(challenges = true))
+  def exercises: () => Unit = () => {
+    setState(state.copy(challenges = true, login = false, password = false, newChallenge = false))
+  }
+
+  def createChallenge: () => Unit = () => {
+    setState(state.copy(newChallenge = true, challenges = false, login = false, password = false))
   }
 
   def render(): ReactElement = div(NavigationComponent(
@@ -49,11 +56,13 @@ import domain.User
                                       state.user,
                                       state.guest,
                                       changePassword,
-                                      logged)
+                                      logged,
+                                      props.messages),
+                                    props.messages
                                     ), 
-                                   LoginComponent(state.login, logged), 
-                                   ChangePasswordComponent(state.password), 
-                                   CreateUserComponent(false), 
-                                   CreateChallengeComponent(false),
-                                   ChallengeListComponent(state.challenges, 10))
+                                   LoginComponent(state.login, logged, props.messages),
+                                   ChangePasswordComponent(state.password, props.messages), 
+                                   CreateUserComponent(false, props.messages), 
+                                   CreateChallengeComponent(state.newChallenge, props.messages),
+                                   ChallengeListComponent(state.challenges, 10, createChallenge, props.messages))
 }

@@ -2,6 +2,7 @@ package domain
 
 import upickle.default.{ReadWriter => RW, macroRW}
 import domain.Role
+import shared.SharedMessages
 
 final case class User(userId:    Option[Int], 
                       passwd:    String,
@@ -25,5 +26,5 @@ final case class User(userId:    Option[Int],
 object User {
   implicit val rw: RW[User] = macroRW
 
-  val guest = User(None, "", "Anónimo", None, None, false, true, List[Role](Role.Guest()))
+  val guest = User(None, "", "?", None, None, false, true, List[Role](Role.Guest()))
 }

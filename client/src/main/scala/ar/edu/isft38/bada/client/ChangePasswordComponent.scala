@@ -13,7 +13,7 @@ import scala.util.Failure
 import upickle.default._
 
 @react class ChangePasswordComponent extends Component {
-  case class Props(on: Boolean)
+  case class Props(on: Boolean, messages: Map[String, String])
   case class State(oldPassword: String, password: String, passConf: String, distinct: Boolean,
                    activate: Boolean, error: Boolean, failure: Boolean, success: Boolean)
 
@@ -47,7 +47,6 @@ import upickle.default._
   def data(): String = write[ChangePasswordDTO](ChangePasswordDTO(state.oldPassword, state.password))
 
   def changePassword() {
-    println("Click en ingresar")
     val headers = Map(
       "Content-Type" -> "application/json",
       "Csrf-Token"   -> csrfToken
@@ -75,59 +74,59 @@ import upickle.default._
   }
 
   def render(): ReactElement = main(className := "container", role := "main", hidden := !props.on)(
-    h4("Cambiar contraseña"),
+    h4(props.messages.get("password.change")),
     div( className := "form-group")(
-      label(htmlFor := "email")("Contraseña actual"),
+      label(htmlFor := "email")(props.messages.get("password.old")),
       input(`type`              := "password",
             id                  := "oldPassword",
             className           := "form-control", 
             aria-"describedby"  := "contraHelp", 
-            placeholder         := "Ingrese su contraseña actual",
+            placeholder         := props.messages.get("password.old.placeholder"),
             value               := state.oldPassword,
             onChange            := ((e) => updateOldPassword(e))),
       small(id := "contraHelp", className :="form-text text-muted")
-           ("La contraseña con la que ingresó al sitio.")
+           (props.messages.get("password.old.help"))
     ),
     div( className := "form-group")(
-      label(htmlFor := "password")("Nueva contraseña"),
+      label(htmlFor := "password")(props.messages.get("password.new")),
       input(`type`              := "password",
             id                  := "password",
             className           := "form-control", 
             aria-"describedby"  := "passwordHelp", 
-            placeholder         := "Ingrese la nueva contraseña",
+            placeholder         := props.messages.get("password.new.placeholder"),
             value               := state.password,
             onChange            := ((e) => updatePassword(e))),
       small(id := "passwordHelp", className :="form-text text-muted")
-           ("Al menos 8 caracteres."),     
+           (props.messages.get("password.help")),     
     ),
     div( className := "form-group")(
-      label(htmlFor := "passConf")("Nueva contraseña"),
+      label(htmlFor := "passConf")(props.messages.get("password.confirmation")),
       input(`type`              := "password",
             id                  := "passConf",
             className           := "form-control", 
             aria-"describedby"  := "passConfHelp", 
-            placeholder         := "Repita la nueva contraseña",
+            placeholder         := props.messages.get("password.confirmation.placeholder"),
             value               := state.passConf,
             onChange            := ((e) => updatePassConf(e))),
       small(id := "passConfHelp", className :="form-text text-muted")
-           ("Al menos 8 caracteres."),     
+           (props.messages.get("password.help")),     
     ),
     div(
       button(className := "btn btn-outline-secondary",
-             onClick := ((e) => clean()))("Limpiar"),
+             onClick := ((e) => clean()))(props.messages.get("button.clean")),
       span("   "),
       button(className := "btn btn-outline-success",
-             onClick := ((e) => changePassword()), disabled := state.activate)("Cambiar contraseña")
+             onClick := ((e) => changePassword()), disabled := state.activate)(props.messages.get("password.change"))
     ),
     br(),
     div(className := "alert alert-danger",  role := "alert", hidden := !state.error)(
-      "La contraseña actual es incorrecta."
+      props.messages.get("password.wrong")
     ),
     div(className := "alert alert-danger",  role := "alert", hidden := !state.failure)(
-      "Hubo un error al intentar cambiar la contraseña, por favor intente nuevamente."
+      props.messages.get("password.error")
     ),
     div(className := "alert alert-danger",  role := "alert", hidden := !state.distinct)(
-      "La nueva contraseña y la confirmación no coinciden."
+      props.messages.get("password.match")
     )
   )
 }

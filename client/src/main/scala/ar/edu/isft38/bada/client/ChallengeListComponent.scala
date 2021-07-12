@@ -14,7 +14,7 @@ import upickle.default._
 import scala.util.Failure
 
 @react class ChallengeListComponent extends Component {
-  case class Props(on: Boolean, pageSize: Int)
+  case class Props(on: Boolean, pageSize: Int, createChallenge: () => Unit, messages: Map[String, String])
   case class State(page: Int, total: Int, challenges: Seq[Challenge], failure: Boolean)
 
   def initialState: State = State(0, 0, Nil, false)
@@ -53,15 +53,18 @@ import scala.util.Failure
 
   }
 
+  def create() {
+    props.createChallenge()
+  }
+
   override def componentDidMount(): Unit = challengesUpdate()
 
   def render(): ReactElement = div(hidden := !props.on)(
-    h4("Lista de ejercicios"),
+    h4(props.messages.get("challenge.list")),
     table(className := "table table-stripped")(
       thead(tr(
-        th(scope := "col-sm-9")("Enunciado"), 
-        th(scope := "col-sm-3")("Acciones"))),
-        //th(scope := "col-sm-2")("Enviar"))),
+        th(scope := "col-sm-9")(props.messages.get("question")), 
+        th(scope := "col-sm-3")(props.messages.get("title.actions")))),
       tbody(
       state.challenges.map { challenge =>
         tr(key := challenge.challengeId.map(_.toString))(
@@ -73,7 +76,14 @@ import scala.util.Failure
           button(`type` := "button", className := "btn btn-outline-dark",
                  onClick := ((e) => send(challenge.challengeId)))("⇒")))
       })
-    )
+    ),
+    button(`type` := "button", className := "btn btn-outline-dark", 
+                 onClick := ((e) => create()))("+"), // TODO load create challenge
+    span(" "),
+    button(`type` := "button", className := "btn btn-outline-dark", 
+                 onClick := ((e) => {}))("<"), // TODO show previous page
+    button(`type` := "button", className := "btn btn-outline-dark", 
+                 onClick := ((e) => {}))(">") // TODO show next page
   )
 
 }

@@ -14,7 +14,7 @@ import upickle.default._
 import domain.User
 
 @react class CreateUserComponent extends Component {
-  case class Props(on: Boolean)
+  case class Props(on: Boolean, messages: Map[String, String])
   case class State(firstName: String, lastName: String, email: String, 
                    activate: Boolean, error: Boolean, admin: Boolean,
                    failure: Boolean, success: Boolean)

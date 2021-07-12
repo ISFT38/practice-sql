@@ -14,7 +14,7 @@ import upickle.default._
 import domain.Challenge
 
 @react class CreateChallengeComponent extends Component {
-  case class Props(on: Boolean)
+  case class Props(on: Boolean, messages: Map[String, String])
   case class State(question: String, database: String, query: String,
                    activate: Boolean, failure: Boolean, success: Boolean)
 
@@ -73,56 +73,56 @@ import domain.Challenge
   }
 
   def render(): ReactElement = main(className := "container", role := "main", hidden := !props.on)(
-    h4("Crear desafío"),
+    h4(props.messages.get("challenge.create")),
     div( className := "form-group")(
-      label(htmlFor := "database")("Base de datos"),
+      label(htmlFor := "database")(props.messages.get("database")),
       input(`type`              := "text",
             id                  := "database",
             className           := "form-control", 
             aria-"describedby"  := "databaseHelp", 
-            placeholder         := "Ingrese el nombre de la base de datos",
+            placeholder         := props.messages.get("database.placeholder"),
             value               := state.database,
             onChange            := ((e) => updateDatabase(e))),
       small(id := "databaseHelp", className :="form-text text-muted")
-           ("La base de datos en la que hay que hacer la consulta."),     
+           (props.messages.get("database.help")),     
     ),
     div( className := "form-group")(
-      label(htmlFor := "question")("Enunciado"),
+      label(htmlFor := "question")(props.messages.get("question")),
       input(`type`              := "text",
             id                  := "question",
             className           := "form-control", 
             aria-"describedby"  := "questionHelp", 
-            placeholder         := "Ingrese el enunciado",
+            placeholder         := props.messages.get("question.placeholder"),
             value               := state.question,
             onChange            := ((e) => updateQuestion(e))),
       small(id := "questionHelp", className :="form-text text-muted")
-           ("La pregunta que se le mostrará al estudiante.")
+           (props.messages.get("question.help"))
     ),
     div( className := "form-group")(
-      label(htmlFor := "query")("Consulta"),
+      label(htmlFor := "query")(props.messages.get("query")),
       input(`type`              := "text",
             id                  := "query",
             className           := "form-control", 
             aria-"describedby"  := "queryHelp", 
-            placeholder         := "Ingrese la consulta",
+            placeholder         := props.messages.get("query.placeholder"),
             value               := state.query,
             onChange            := ((e) => updateQuery(e))),
       small(id := "questionHelp", className :="form-text text-muted")
-           ("La consulta a la base de datos que tiene que escribir el estudiante.")
+           (props.messages.get("query.help"))
     ),
     div(
       button(className := "btn btn-outline-secondary",
-             onClick := ((e) => clean()))("Limpiar"),
+             onClick := ((e) => clean()))(props.messages.get("button.clean")),
       span("   "),
       button(className := "btn btn-outline-success",
-             onClick := ((e) => saveChallenge()), disabled := state.activate)("Crear desafío")
+             onClick := ((e) => saveChallenge()), disabled := state.activate)(props.messages.get("challenge.create"))
     ),
     br(),
     div(className := "alert alert-danger",  role := "alert", hidden := !state.failure)(
-      "Hubo un error al intentar crear el desafío, por favor intente nuevamente."
+      props.messages.get("challenge.error")
     ),
     div(className := "alert alert-success",  role := "alert", hidden := !state.success)(
-      "Desafío grabado correctamente."
+      props.messages.get("challenge.success")
     )
   )
 }

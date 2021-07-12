@@ -1,0 +1,49 @@
+anonymous=Anonymous
+
+menu.home=Home
+menu.logout=Logout
+menu.results=Results
+menu.challenges=Challenges
+
+button.send=Send
+button.clean=Clean
+
+title.actions=Actions
+title.exercisesList=List of exercises
+
+
+challenge=Challenge
+challenge.create=Create challenge
+challenge.error=An error happened when trying to save the challenge, please try again
+challenge.success=Challenge saved correctly
+challenge.list=Challenge list
+
+database=Database
+database.placeholder=Type the database name for this challenge
+database.help=The name of the database used in this challenge
+password=Password
+password.change=Change password
+password.placeholder=Type your password
+password.help=At least 8 characters
+password.wrong=Wrong password or username
+password.error=An error happened trying to validate your identity, please try again
+password.old=Old password
+password.old.placeholder=Type your old password
+password.old.help=The password used to login
+password.confirmation=Confirm password
+password.confirmation.placeholder=Retype your new password
+password.match=The new password and the confirmation did not match
+query=Query
+query.placeholder=Type the query
+query.help=The query that answers this challenge
+question=Question
+question.placeholder=Type the question
+question.help=The question that will be shown to the students
+
+login=Login
+login.options=Login for more options
+logout=Logout
+
+email.address=Email address
+email.placeholder=Type you email
+email.help=The same email you use in the campus
