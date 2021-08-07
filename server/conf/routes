@@ -4,15 +4,31 @@
 
 # Home page
 GET         /                             controllers.Application.index
-GET         /challenges/:pageSize/:page   controllers.ChallengeController.challenges(pageSize: Int, page: Int)
 GET         /messages                     controllers.MessagesController.messages
+
+# Authentication & Authorization
 POST        /login                        controllers.UserController.login
-POST        /logout                       controllers.UserController.logout
-POST        /createUser                   controllers.UserController.create
-POST        /changePassword               controllers.UserController.changePassword
-POST        /createChallenge              controllers.ChallengeController.create
-GET         /delete-challenge/:id         controllers.ChallengeController.delete(id: Int)
-        
+GET         /logout                       controllers.UserController.logout
+
+# User
+
+POST        /user                         controllers.UserController.create
+PUT         /user                         controllers.UserController.update
+GET         /user/:id                     controllers.UserController.user(id: Int)
+POST        /user/password                controllers.UserController.changePassword
+
+
+# Challenge
+GET         /challenges/:pageSize/:page   controllers.ChallengeController.challenges(pageSize: Int, page: Int)
+POST        /challenge                    controllers.ChallengeController.create
+PUT         /challenge                    controllers.ChallengeController.update
+GET         /challenge/:id                controllers.ChallengeController.challenge(id: Int)
+DELETE      /challenge/:id                controllers.ChallengeController.delete(id: Int)
+
+# Answers
+#POST /answer
+#GET  /answer/:id
+
 # Prefix must match `play.assets.urlPrefix`
 GET        /assets/*file                 controllers.Assets.at(file)
 GET        /versionedAssets/*file        controllers.Assets.versioned(path="/public", file: Asset)
